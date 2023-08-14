@@ -52,9 +52,10 @@ class Monitor(Tk):
             if not isfile(csv_file):
                 makedirs('bvm_logs', exist_ok=True)
                 with open(csv_file, 'w') as f:
-                    print('时间', *name.values(), sep=',', file=f)
+                    print('time', 'exceltime', *name.keys(), sep=',', file=f)
+            excel_time = (now_time+8*3600)/86400+70*365+19
             with open(csv_file, 'a') as f:
-                print(round(now_time), *[stat[i]
+                print(round(now_time), excel_time, *[stat[i]
                       for i in name], sep=',', file=f)
             self.s = (data['title'] if len(data['title']) <=
                       10 else data['title'][:10]+'...')+'\n'
