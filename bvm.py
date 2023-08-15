@@ -1,5 +1,5 @@
 from json import loads
-from os import getcwd, makedirs
+from os import getcwd, makedirs, system
 from os.path import isfile, join
 from sys import argv
 from time import time
@@ -12,27 +12,33 @@ class Monitor(Tk):
         super().__init__()
         self.bv = bv
         self.tm = tm
+        self.x = x
+        self.y = y
         self.overrideredirect(True)
         self.attributes('-topmost', True)
         self.config(background='black')
-        self.geometry(f'150x150+{x}+{y}')
+        self.geometry(f'150x150+{self.x}+{self.y}')
         self.attributes('-alpha', 0.7)
         self.label = Label(self, background='black',
                            foreground='white', text='Loading')
         self.label.place(x=0, y=0, width=150, height=150)
         self.label.bind('<Button-1>', self.on_click)
+        self.label.bind('<Control-Button-1>', self.start_url)
         self.label.bind('<Button-3>', lambda x: self.destroy())
         self.label.bind('<B1-Motion>', self.on_move)
         self.after(10, self.refresh)
         self.mainloop()
 
+    def start_url(self, event):
+        system('start https://www.bilibili.com/video/'+self.bv)
+
     def on_click(self, event):
         self.lastclick = event
 
     def on_move(self, event):
-        pos_x = self.winfo_x()+event.x-self.lastclick.x
-        pos_y = self.winfo_y()+event.y-self.lastclick.y
-        self.geometry(f'150x150+{pos_x}+{pos_y}')
+        self.x += event.x-self.lastclick.x
+        self.y += event.y-self.lastclick.y
+        self.geometry(f'150x150+{self.x}+{self.y}')
 
     last = {'view': 0, 'danmaku': 0, 'like': 0,
             'coin': 0, 'favorite': 0, 'share': 0, 'reply': 0}

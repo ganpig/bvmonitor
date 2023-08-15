@@ -1,6 +1,6 @@
 from os import makedirs, system
 
-from easygui import textbox, integerbox
+from easygui import integerbox, textbox
 
 if __name__ == '__main__':
     try:
