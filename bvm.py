@@ -4,7 +4,7 @@ from os.path import isfile, join
 from sys import argv
 from time import time
 from tkinter import Label, Tk
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 
 
 class Monitor(Tk):
@@ -51,8 +51,9 @@ class Monitor(Tk):
         now_time = time()
         if now_time-self.last_time > self.tm:
             self.last_time = now_time
-            data = loads(urlopen(
-                f'https://api.bilibili.com/x/web-interface/view?bvid={self.bv}').read().decode())['data']
+            data = loads(urlopen(Request(
+                f'https://api.bilibili.com/x/web-interface/view?bvid={self.bv}', headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0'})).read().decode())
+            data = data['data']
             stat = data['stat']
             csv_file = join(getcwd(), 'bvm_logs', self.bv+'.csv')
             if not isfile(csv_file):
@@ -72,7 +73,7 @@ class Monitor(Tk):
                     self.last[i] = stat[i]
                 self.s += '\n'
         self.label.config(
-            text=self.s+f'距下次刷新{round(self.tm-(now_time-self.last_time),1)}s')
+            text=self.s+f'距下次刷新{round(self.tm-(now_time-self.last_time), 1)}s')
         self.after(10, self.refresh)
 
 
