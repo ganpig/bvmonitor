@@ -45,6 +45,10 @@ name = {'view': '播放', 'danmaku': '弹幕', 'like': '点赞',
         'coin': '投币', 'favorite': '收藏', 'share': '分享', 'reply': '评论', 'points': '得点'}
 
 
+def urlget(s):
+    return loads(urlopen(Request(s, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0'})).read().decode())
+
+
 class Monitor(Tk):
     stat = {}
     last = {}
@@ -53,7 +57,7 @@ class Monitor(Tk):
     lastclicktime = 0
     points = {'总得点': 0}
 
-    def __init__(self, bv, tm=60, x=200, y=200):
+    def __init__(self, bv, tm=30, x=200, y=200):
         super().__init__()
         self.bv = bv
         self.tm = tm
@@ -124,9 +128,8 @@ class Monitor(Tk):
     def refresh(self, event=None):
         try:
             self.time = time()
-            data = loads(urlopen(Request(
-                f'https://api.bilibili.com/x/web-interface/view?bvid={self.bv}', headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0'})).read().decode())
-            data = data['data']
+            data = urlget(
+                f'https://api.bilibili.com/x/web-interface/view?bvid={self.bv}')['data']
             if event is not None:
                 self.last = self.stat
             self.stat = data['stat']
@@ -145,6 +148,8 @@ class Monitor(Tk):
                 print(round(self.time), excel_time, *[self.stat[i]
                                                       for i in name], sep=',', file=f)
             self.title = data['title']
+            self.ren = urlget(f"https://api.bilibili.com/x/player/online/total?bvid={
+                              self.bv}&cid={data['cid']}")['data']['total']
         except Exception:
             print_exc()
 
@@ -163,13 +168,13 @@ class Monitor(Tk):
             *(self.stat[i]for i in ('view', 'reply', 'danmaku', 'favorite', 'coin', 'like')))
         self.label3.config(
             text=f'''{self.bv}
+实时观看人数：{self.ren}
 Ctrl+单击打开视频
 双击查看得点构成
 右击折叠窗口
 Alt+F4关闭工具
 中击立即刷新
-距下次刷新{round(self.tm-(time()-self.time), 1)}s
-Created by 蔗蓝''')
+距下次刷新{round(self.tm-(time()-self.time), 1)}s''')
         self.label4.config(text=self.title+'\n'+s[0]+' '+s[-1])
         self.after(50, self.main)
 
